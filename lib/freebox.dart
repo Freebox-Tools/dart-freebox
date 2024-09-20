@@ -11,7 +11,8 @@ import 'package:http/io_client.dart';
 // Créez une instance de HttpClient qui ignore les erreurs de certificat
 HttpClient createHttpClient() {
   var client = HttpClient();
-  client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  client.badCertificateCallback =
+      (X509Certificate cert, String host, int port) => true;
   return client;
 }
 
@@ -37,7 +38,8 @@ class FreeboxClient {
     this.apiBaseUrl = '/api/',
   }) : httpClient = HttpClient() {
     // Désactiver la vérification des certificats
-    httpClient.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    httpClient.badCertificateCallback =
+        (X509Certificate cert, String host, int port) => true;
     if (verbose) print('Freebox client initialized!');
   }
 
@@ -51,15 +53,18 @@ class FreeboxClient {
     var client = HttpClient();
 
     // Désactiver la vérification des certificats
-    client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    client.badCertificateCallback =
+        (X509Certificate cert, String host, int port) => true;
 
     // Vérifier la connexion au serveur
-    var request = await client.getUrl(Uri.parse('http://mafreebox.freebox.fr/api/v8/api_version'));
+    var request = await client
+        .getUrl(Uri.parse('http://mafreebox.freebox.fr/api/v8/api_version'));
     var response = await request.close();
 
     if (response.statusCode != 200) {
       if (verbose) {
-        print('Impossible de joindre le serveur de votre Freebox (mafreebox.freebox.fr). Êtes-vous bien connecté au même réseau que votre Freebox ?');
+        print(
+            'Impossible de joindre le serveur de votre Freebox (mafreebox.freebox.fr). Êtes-vous bien connecté au même réseau que votre Freebox ?');
       }
       return 'UNREACHABLE';
     }
@@ -69,18 +74,18 @@ class FreeboxClient {
 
     if (freebox['api_base_url'] == null || freebox['box_model'] == null) {
       if (verbose) {
-        print('Impossible de récupérer les informations de votre Freebox. ${freebox['msg'] ?? freebox}');
+        print(
+            'Impossible de récupérer les informations de votre Freebox. ${freebox['msg'] ?? freebox}');
       }
       return 'CANNOT_GET_INFOS';
     }
     if (verbose) {
-      print("Un message s'affichera dans quelques instants sur l'écran de votre Freebox Server pour permettre l'autorisation.");
+      print(
+          "Un message s'affichera dans quelques instants sur l'écran de votre Freebox Server pour permettre l'autorisation.");
     }
     var authorizeRequest = await ioClient.post(
       Uri.parse('https://mafreebox.freebox.fr/api/v8/login/authorize'),
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'app_id': appId,
         'app_name': appName,
@@ -99,7 +104,8 @@ class FreeboxClient {
 
     if (register?['success'] != true) {
       if (verbose) {
-        print('Impossible de demander l\'autorisation à votre Freebox. ${register['msg']}');
+        print(
+            'Impossible de demander l\'autorisation à votre Freebox. ${register['msg']}');
       }
       return 'CANNOT_ASK_AUTHORIZATION';
     }
@@ -116,7 +122,8 @@ class FreeboxClient {
     while (status == 'pending') {
       await Future.delayed(const Duration(seconds: 2));
       var statusRequest = await ioClient.get(
-        Uri.parse('https://mafreebox.freebox.fr/api/v8/login/authorize/${register['result']?['track_id']}'),
+        Uri.parse(
+            'https://mafreebox.freebox.fr/api/v8/login/authorize/${register['result']?['track_id']}'),
       );
 
       if (statusRequest.statusCode != 200) {
@@ -131,7 +138,8 @@ class FreeboxClient {
 
     if (status != 'granted') {
       if (verbose) {
-        print("Impossible de se connecter à votre Freebox. L'accès ${status == 'timeout' ? 'a expiré' : status == 'denied' ? "a été refusé par l'utilisateur" : ''}.");
+        print(
+            "Impossible de se connecter à votre Freebox. L'accès ${status == 'timeout' ? 'a expiré' : status == 'denied' ? "a été refusé par l'utilisateur" : ''}.");
       }
       return "ACCESS_NOT_GRANTED_BY_USER";
     }
@@ -156,7 +164,8 @@ class FreeboxClient {
   }) async {
     if (!url.startsWith('http')) {
       if (url.startsWith("/")) url = url.substring(1);
-      url = 'https://$apiDomain${httpsPort != null ? ':$httpsPort' : ''}$apiBaseUrl$url';
+      url =
+          'https://$apiDomain${httpsPort != null ? ':$httpsPort' : ''}$apiBaseUrl$url';
     }
     if (verbose) print('Request URL: $url');
 
@@ -168,7 +177,9 @@ class FreeboxClient {
     };
 
     // Création d'un client HTTP qui ignore la vérification des certificats
-    HttpClient httpClient = HttpClient()..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
     IOClient ioClient = IOClient(httpClient);
 
     // Timeout de 7 secondes
@@ -209,10 +220,7 @@ class FreeboxClient {
 
         // Si l'erreur n'est pas liée à l'authentification
         if (json['error_code'] == 'auth_required') {
-          return print({
-            "success": false,
-            "msg": "Authentification requise"
-          });
+          return print({"success": false, "msg": "Authentification requise"});
         }
 
         // On s'authentifie
@@ -238,10 +246,7 @@ class FreeboxClient {
       }
     } catch (e) {
       if (verbose) print('Error during fetch: $e');
-      return {
-        "success": false,
-        "msg": e.toString()
-      };
+      return {"success": false, "msg": e.toString()};
     } finally {
       ioClient.close();
       httpClient.close();
@@ -253,7 +258,9 @@ class FreeboxClient {
     // Obtenir le challenge
     var challenge = await fetch(url: 'v8/login/', method: 'GET');
 
-    if (verbose) print("Challenge: ${challenge?['result']?['challenge'] ?? challenge?['msg'] ?? challenge}");
+    if (verbose)
+      print(
+          "Challenge: ${challenge?['result']?['challenge'] ?? challenge?['msg'] ?? challenge}");
     if (challenge?['success'] != true) return print(challenge);
 
     // Si on a pas de challenge
@@ -261,28 +268,29 @@ class FreeboxClient {
       // Si on est déjà connecté
       if (challenge['result']?['logged_in'] == true) {
         // On fait une requête qui nécessite d'être connecté
-        if (verbose) print("Vous avez l'air d'être déjà connecté, 2e vérification...");
+        if (verbose)
+          print("Vous avez l'air d'être déjà connecté, 2e vérification...");
 
         var freeboxSystem = await fetch(url: 'v8/system');
         if (verbose) print("Freebox system: $freeboxSystem");
 
         // Si ça a fonctonné, on est connecté
         if (freeboxSystem?['success'] == true) {
-          return print({
-            "success": true,
-            "freebox": freebox
-          });
+          return print({"success": true, "freebox": freebox});
         }
 
         // Sinon on dit que le challenge n'a pas fonctionné
         return print({
           "success": false,
-          "msg": "Impossible de récupérer le challenge pour une raison inconnue ${challenge['msg'] ?? challenge['message'] ?? challenge['result']?['msg'] ?? challenge['result']?['message'] ?? challenge['status_code']}"
+          "msg":
+              "Impossible de récupérer le challenge pour une raison inconnue ${challenge['msg'] ?? challenge['message'] ?? challenge['result']?['msg'] ?? challenge['result']?['message'] ?? challenge['status_code']}"
         });
       }
     }
 
-    var passwordHash = Hmac(sha1, utf8.encode(appToken)).convert(utf8.encode(challenge['result']?['challenge'])).toString();
+    var passwordHash = Hmac(sha1, utf8.encode(appToken))
+        .convert(utf8.encode(challenge['result']?['challenge']))
+        .toString();
 
     if (verbose) print("Password hash: $passwordHash");
 
@@ -290,13 +298,12 @@ class FreeboxClient {
     var auth = await fetch(
       url: 'v8/login/session',
       method: 'POST',
-      body: {
-        'app_id': appId,
-        'password': passwordHash
-      },
+      body: {'app_id': appId, 'password': passwordHash},
     );
 
-    if (verbose) print("Auth: ${auth?['success']} ${auth?['result']?['session_token'] ?? auth?['msg'] ?? auth}");
+    if (verbose)
+      print(
+          "Auth: ${auth?['success']} ${auth?['result']?['session_token'] ?? auth?['msg'] ?? auth}");
     if (auth?['success'] != true) return print(auth);
 
     // On définit le token de session
@@ -307,9 +314,6 @@ class FreeboxClient {
     freebox = await fetch(url: 'v8/api_version');
 
     if (verbose) print("Infos de la freebox obtenus: $freebox");
-    return {
-      "success": true,
-      "freebox": freebox
-    };
+    return {"success": true, "freebox": freebox};
   }
 }

@@ -13,7 +13,8 @@ void main() async {
 
   // // Connexion
   var client = FreeboxClient(
-    appToken: "y8H6scZE5nfWSzkrrtL5v/enYDWRQEIljyo4mx+aM4yP5MOj33fBpuakc+PKvOzp",
+    appToken:
+        "y8H6scZE5nfWSzkrrtL5v/enYDWRQEIljyo4mx+aM4yP5MOj33fBpuakc+PKvOzp",
     appId: "fbx.test",
     apiDomain: "por3sikw.fbxos.fr",
     httpsPort: 20587,
