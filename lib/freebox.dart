@@ -144,15 +144,19 @@ class FreeboxClient {
       return "ACCESS_NOT_GRANTED_BY_USER";
     }
 
-    if (verbose) {
-      print('Vous êtes maintenant connecté à votre Freebox !');
-    }
-    return print({
+    var values = {
       'appToken': appToken,
       'appId': appId,
       'apiDomain': freebox['api_domain'],
       'httpsPort': freebox['https_port'],
-    });
+    };
+
+    if (verbose) {
+      print('Vous êtes maintenant connecté à votre Freebox !');
+
+      print(values);
+    }
+    return values;
   }
 
   Future<dynamic> fetch({
@@ -212,21 +216,21 @@ class FreeboxClient {
         // Si on essayait de s'authentifier
         if (verbose) print("Fetch error: ${json['error']}");
         if (url.endsWith("login/session")) {
-          return print({
+          return {
             "success": false,
             "msg": json['error'] ?? streamedResponse.reasonPhrase
-          });
+          };
         }
 
         // Si l'erreur n'est pas liée à l'authentification
         if (json['error_code'] == 'auth_required') {
-          return print({"success": false, "msg": "Authentification requise"});
+          return {"success": false, "msg": "Authentification requise"};
         }
 
         // On s'authentifie
         if (verbose) print("Réhautentification...");
         var auth = await authentificate();
-        if (auth?['success'] != true) return print(auth);
+        if (auth?['success'] != true) return auth;
 
         // On refait la requête
         if (verbose) print("Nouvelle requête...");
@@ -258,33 +262,35 @@ class FreeboxClient {
     // Obtenir le challenge
     var challenge = await fetch(url: 'v8/login/', method: 'GET');
 
-    if (verbose)
+    if (verbose) {
       print(
           "Challenge: ${challenge?['result']?['challenge'] ?? challenge?['msg'] ?? challenge}");
-    if (challenge?['success'] != true) return print(challenge);
+    }
+    if (challenge?['success'] != true) return challenge;
 
     // Si on a pas de challenge
     if (challenge['result']?['challenge'] == null) {
       // Si on est déjà connecté
       if (challenge['result']?['logged_in'] == true) {
         // On fait une requête qui nécessite d'être connecté
-        if (verbose)
+        if (verbose) {
           print("Vous avez l'air d'être déjà connecté, 2e vérification...");
+        }
 
         var freeboxSystem = await fetch(url: 'v8/system');
         if (verbose) print("Freebox system: $freeboxSystem");
 
         // Si ça a fonctonné, on est connecté
         if (freeboxSystem?['success'] == true) {
-          return print({"success": true, "freebox": freebox});
+          return {"success": true, "freebox": freebox};
         }
 
         // Sinon on dit que le challenge n'a pas fonctionné
-        return print({
+        return {
           "success": false,
           "msg":
               "Impossible de récupérer le challenge pour une raison inconnue ${challenge['msg'] ?? challenge['message'] ?? challenge['result']?['msg'] ?? challenge['result']?['message'] ?? challenge['status_code']}"
-        });
+        };
       }
     }
 
@@ -301,10 +307,11 @@ class FreeboxClient {
       body: {'app_id': appId, 'password': passwordHash},
     );
 
-    if (verbose)
+    if (verbose) {
       print(
           "Auth: ${auth?['success']} ${auth?['result']?['session_token'] ?? auth?['msg'] ?? auth}");
-    if (auth?['success'] != true) return print(auth);
+    }
+    if (auth?['success'] != true) return auth;
 
     // On définit le token de session
     if (verbose) print("Authentification réussie !");

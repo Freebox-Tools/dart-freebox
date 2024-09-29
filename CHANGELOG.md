@@ -4,3 +4,6 @@
 
 ## 1.0.1
 * Correction d'une avertissement.
+
+## 1.0.2
+* Meilleure gestion des erreurs.

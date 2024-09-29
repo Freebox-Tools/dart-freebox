@@ -1,6 +1,6 @@
 name: freebox
 description: "Un wrapper pour l'API de Freebox OS, gère la connexion et facilite les requêtes."
-version: 1.0.1
+version: 1.0.2
 repository: https://github.com/Freebox-Tools/dart-freebox
 
 environment:
