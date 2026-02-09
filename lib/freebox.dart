@@ -58,7 +58,7 @@ class FreeboxClient {
 
     // Vérifier la connexion au serveur
     var request = await client
-        .getUrl(Uri.parse('http://mafreebox.freebox.fr/api/v8/api_version'));
+        .getUrl(Uri.parse('https://mafreebox.freebox.fr/api/v8/api_version'));
     var response = await request.close();
 
     if (response.statusCode != 200) {
